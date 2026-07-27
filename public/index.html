@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>thread-mark</title>
+    <link rel="stylesheet" href="/app.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <div class="masthead">
+        <span class="wordmark">thread<span class="wm-join">-</span><span class="wm-out">mark</span></span>
+        <div class="modes" role="tablist" aria-label="Mode">
+          <button id="mode-slack" type="button" role="tab" aria-selected="true" aria-controls="panel-slack">
+            From Slack
+          </button>
+          <button id="mode-editor" type="button" role="tab" aria-selected="false" aria-controls="panel-editor">
+            Editor
+          </button>
+        </div>
+      </div>
+      <p class="tagline">Slack thread &rarr; markdown, on this machine.</p>
+
+      <section id="panel-slack" class="panel" role="tabpanel" aria-labelledby="mode-slack">
+        <div class="field">
+          <div class="field-head">
+            <label for="workspace">Workspace</label>
+            <a class="link" href="/settings">Manage tokens</a>
+          </div>
+          <select id="workspace" class="control"></select>
+          <p class="hint">
+            The token used for the request below. Tokens live in this browser tab only — the
+            server keeps none of its own, so the web UI never uses the one in your
+            <code>.env</code>.
+          </p>
+        </div>
+
+        <form id="convert-form" class="field">
+          <label for="permalink">Thread link</label>
+          <div class="row">
+            <input
+              id="permalink"
+              class="control"
+              type="text"
+              inputmode="url"
+              spellcheck="false"
+              autocomplete="off"
+              autofocus
+              placeholder="https://yourteam.slack.com/archives/C0123ABCD/p1234567890123456"
+            />
+            <button id="convert" class="btn" type="submit">Convert</button>
+          </div>
+          <p class="hint">In Slack, open a message&rsquo;s More actions menu and choose Copy link.</p>
+        </form>
+
+        <p id="status" class="status" role="status" aria-live="polite"></p>
+
+        <section id="result" class="card" hidden aria-label="Converted markdown">
+          <div class="card-head">
+            <div class="tabs" role="tablist" aria-label="View">
+              <button id="tab-raw" type="button" role="tab" aria-selected="true" aria-controls="raw">raw</button>
+              <button id="tab-preview" type="button" role="tab" aria-selected="false" aria-controls="preview">
+                preview
+              </button>
+            </div>
+            <div class="card-actions">
+              <button id="copy" class="btn btn-quiet" type="button">Copy</button>
+              <button id="download" class="btn btn-quiet" type="button">Download .md</button>
+            </div>
+          </div>
+          <pre id="raw" class="pane pane-raw" role="tabpanel" aria-labelledby="tab-raw"></pre>
+          <div id="preview" class="pane md" role="tabpanel" aria-labelledby="tab-preview" hidden></div>
+        </section>
+      </section>
+
+      <section id="panel-editor" class="panel" role="tabpanel" aria-labelledby="mode-editor" hidden>
+        <div class="split">
+          <div class="split-col">
+            <div class="pane-head">
+              <label for="editor" id="editor-label">You type</label>
+              <button id="copy-markdown" class="icon-btn" type="button"></button>
+            </div>
+            <textarea
+              id="editor"
+              class="control editor"
+              spellcheck="false"
+              placeholder="Paste or write markdown. It renders as you go — this never touches Slack."
+            ></textarea>
+          </div>
+
+          <button id="swap" class="swap" type="button">&rarr;</button>
+
+          <div class="split-col">
+            <div class="pane-head">
+              <span class="label" id="rich-label">Renders as</span>
+              <button id="copy-rich" class="icon-btn" type="button"></button>
+            </div>
+            <div
+              id="editor-preview"
+              class="card pane md editor-preview"
+              data-empty="Nothing yet."
+              aria-live="polite"
+            ></div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script type="module" src="/js/converter.js"></script>
+  </body>
+</html>
