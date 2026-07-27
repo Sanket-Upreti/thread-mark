@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>thread-mark</title>
+    <link rel="stylesheet" href="app.css" />
+  </head>
+  <body class="popup">
+    <!-- Visible only when app.css failed to load, which means this popup is running from
+         unbuilt sources. app.css hides it. -->
+    <p id="unbuilt">
+      <strong>This extension was loaded from source.</strong> Run <code>npm run build</code>, then
+      in <code>chrome://extensions</code> load the <code>dist/extension/</code> folder instead of
+      <code>src/extension/</code>.
+    </p>
+
+    <div class="masthead">
+      <span class="wordmark">thread<span class="wm-join">-</span><span class="wm-out">mark</span></span>
+      <div class="modes" role="tablist" aria-label="Mode">
+        <button id="mode-convert" type="button" role="tab" aria-selected="true" aria-controls="panel-convert">
+          Convert
+        </button>
+        <button id="mode-editor" type="button" role="tab" aria-selected="false" aria-controls="panel-editor">
+          Editor
+        </button>
+      </div>
+    </div>
+
+    <section id="panel-convert" class="panel" role="tabpanel" aria-labelledby="mode-convert">
+      <div class="field">
+        <label for="token">Slack token</label>
+        <div class="row">
+          <input
+            id="token"
+            class="control"
+            type="password"
+            placeholder="xoxp-…"
+            autocomplete="off"
+            spellcheck="false"
+          />
+          <button id="token-reveal" class="btn btn-quiet btn-icon" type="button" aria-label="Show token">
+            Show
+          </button>
+        </div>
+        <p class="hint">Held in this browser&rsquo;s session memory only — never written to disk.</p>
+        <details class="disclosure">
+          <summary>How do I get one?</summary>
+          <div class="disclosure-body">
+            <ol>
+              <li>
+                At
+                <a href="https://api.slack.com/apps" target="_blank" rel="noopener noreferrer"
+                  >api.slack.com/apps</a
+                >, create an app from scratch.
+              </li>
+              <li>
+                Add these user token scopes: <code>channels:history</code>, <code>groups:history</code>,
+                <code>im:history</code>, <code>mpim:history</code>, <code>users:read</code>,
+                <code>files:read</code>.
+              </li>
+              <li>Install it to your workspace, then copy the <code>xoxp-</code> user OAuth token.</li>
+            </ol>
+          </div>
+        </details>
+      </div>
+
+      <div class="field">
+        <label for="permalink">Thread link</label>
+        <input
+          id="permalink"
+          class="control"
+          type="text"
+          inputmode="url"
+          spellcheck="false"
+          autocomplete="off"
+          placeholder="https://yourteam.slack.com/archives/C0123ABCD/p123…"
+        />
+        <p class="hint">In Slack: More actions &rarr; Copy link.</p>
+      </div>
+
+      <button id="convert" class="btn btn-block" type="button">Convert &amp; copy</button>
+      <p id="status" class="status" role="status" aria-live="polite"></p>
+
+      <section id="result" class="card" hidden aria-label="Converted markdown">
+        <div class="card-head">
+          <div class="tabs" role="tablist" aria-label="View">
+            <button id="tab-raw" type="button" role="tab" aria-selected="true" aria-controls="raw">raw</button>
+            <button id="tab-preview" type="button" role="tab" aria-selected="false" aria-controls="preview">
+              preview
+            </button>
+          </div>
+        </div>
+        <pre id="raw" class="pane pane-raw" role="tabpanel" aria-labelledby="tab-raw"></pre>
+        <div id="preview" class="pane md" role="tabpanel" aria-labelledby="tab-preview" hidden></div>
+      </section>
+    </section>
+
+    <section id="panel-editor" class="panel" role="tabpanel" aria-labelledby="mode-editor" hidden>
+      <div class="field">
+        <div class="field-head">
+          <label for="editor" id="editor-label">You type</label>
+          <span class="pane-actions">
+            <button id="copy-markdown" class="icon-btn" type="button"></button>
+            <button id="swap" class="swap" type="button">&rarr;</button>
+          </span>
+        </div>
+        <textarea
+          id="editor"
+          class="control editor"
+          spellcheck="false"
+          placeholder="Paste or write markdown. It renders below as you go."
+        ></textarea>
+        <div class="pane-head">
+          <span class="label" id="rich-label">Renders as</span>
+          <button id="copy-rich" class="icon-btn" type="button"></button>
+        </div>
+        <div
+          id="editor-preview"
+          class="card pane md editor-preview"
+          data-empty="Nothing yet."
+          aria-live="polite"
+        ></div>
+      </div>
+    </section>
+
+    <script type="module" src="popup.js"></script>
+  </body>
+</html>

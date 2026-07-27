@@ -1,0 +1,12 @@
+{
+  "manifest_version": 3,
+  "name": "thread-mark",
+  "version": "0.3.0",
+  "description": "Turn a Slack permalink into clean markdown with your local thread-mark server, and copy it to the clipboard.",
+  "permissions": ["storage", "clipboardWrite"],
+  "host_permissions": ["http://127.0.0.1:4321/*"],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "thread-mark"
+  }
+}
