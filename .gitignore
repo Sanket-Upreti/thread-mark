@@ -1,0 +1,24 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+*.tsbuildinfo
+
+# Secrets — .env holds a real Slack token. .env.example is committed in its place.
+.env
+.env.*
+!.env.example
+
+# Local agent tooling (vendored skills carry their own licences)
+.agents
+skills-lock.json
+
+# Editors and OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log

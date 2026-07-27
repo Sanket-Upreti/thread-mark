@@ -1,0 +1,25 @@
+# Bun configuration for thread-mark.
+#
+# The filename matters: Bun reads `bunfig.toml`. A file named `bun.toml` is silently
+# ignored, so anything put there has no effect at all.
+#
+# Bun also ignores unknown keys without warning, which means a typo here fails quietly.
+# Every setting below was checked by observing its effect, not by assuming the name.
+
+[install]
+# Write exact versions into package.json ("1.3.0", not "^1.3.0"). Four runtime and four
+# dev dependencies, all pinned, so a fresh install matches what was tested.
+exact = true
+
+# Deliberately not set:
+#
+#   frozenLockfile
+#     Right for CI, wrong as a local default: it fails the install whenever package.json
+#     changes. Pass it per-command instead -- `bun install --frozen-lockfile`.
+#
+#   [test]
+#     Tests are written for Vitest and live in `test/`. `bun test` runs them anyway and
+#     is faster, but `bun run test` is the canonical path. See the README.
+#
+#   [scripts]
+#     Not a real bunfig section. Scripts live in package.json, and Bun reads them there.
