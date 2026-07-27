@@ -1,0 +1,26 @@
+{
+  "type": "message",
+  "ts": "1785059490.580489",
+  "user": "U111",
+  "text": "trying to add a link",
+  "attachments": [
+    {
+      "id": 1,
+      "is_msg_unfurl": true,
+      "message_blocks": [
+        {
+          "type": "rich_text",
+          "elements": [
+            {
+              "type": "rich_text_section",
+              "elements": [{ "type": "text", "text": "Tets thread like to check if it works" }]
+            }
+          ]
+        }
+      ],
+      "text": "Tets thread like to check if it works",
+      "fallback": "[message] Tets thread like to check if it works",
+      "from_url": "https://dummyworkspac-eao9633.slack.com/archives/C0BLPQUC39N/p1785059479900769"
+    }
+  ]
+}

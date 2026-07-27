@@ -1,0 +1,24 @@
+{
+  "type": "message",
+  "ts": "1753526600.000300",
+  "user": "U111",
+  "text": "Fallback plain text version",
+  "blocks": [
+    {
+      "type": "rich_text",
+      "elements": [
+        {
+          "type": "rich_text_section",
+          "elements": [
+            { "type": "text", "text": "Please check ", "style": {} },
+            { "type": "text", "text": "this now", "style": { "bold": true } },
+            { "type": "text", "text": ": ", "style": {} },
+            { "type": "link", "url": "https://example.com/doc", "text": "the doc" },
+            { "type": "text", "text": " cc ", "style": {} },
+            { "type": "user", "user_id": "U222" }
+          ]
+        }
+      ]
+    }
+  ]
+}

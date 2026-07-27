@@ -1,0 +1,17 @@
+{
+  // Tests and build scripts: type-checked but never emitted. Without this they fall
+  // outside every project and the editor guesses at their settings.
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "lib": ["ES2022"],
+    "types": ["node"],
+    "strict": true,
+    "skipLibCheck": true,
+    "allowJs": true,
+    "checkJs": true,
+    "noEmit": true
+  },
+  "include": ["test", "scripts"]
+}

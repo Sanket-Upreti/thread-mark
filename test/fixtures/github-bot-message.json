@@ -1,0 +1,20 @@
+{
+  "type": "message",
+  "subtype": "bot_message",
+  "ts": "1753526500.000200",
+  "username": "GitHub",
+  "bot_id": "B0GITHUB",
+  "text": "[repo] Pull request #42 opened by alice",
+  "attachments": [
+    {
+      "pretext": "",
+      "title": "#42 Fix null pointer in checkout flow",
+      "title_link": "https://github.com/example/repo/pull/42",
+      "text": "This fixes a crash when the cart is empty.\n\nFixes ENG-4412.",
+      "fallback": "[repo] Pull request #42 opened by alice",
+      "fields": [
+        { "title": "Reviewers", "value": "bob, carol" }
+      ]
+    }
+  ]
+}
