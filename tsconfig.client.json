@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    // Browser code only — keeps @types/node's setTimeout and friends out of scope.
+    "types": [],
+    "outDir": "dist/client",
+    "rootDir": "src/client",
+    "strict": true,
+    "skipLibCheck": true,
+    "sourceMap": true
+  },
+  "include": ["src/client"]
+}
