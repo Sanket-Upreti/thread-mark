@@ -21,10 +21,17 @@ let markdown = '';
 
 // --- Modes -----------------------------------------------------------------
 
-wireTabs([
-  { tab: el<HTMLButtonElement>('mode-slack'), panel: el<HTMLElement>('panel-slack') },
-  { tab: el<HTMLButtonElement>('mode-editor'), panel: el<HTMLElement>('panel-editor') },
-]);
+const shell = document.querySelector<HTMLElement>('.shell');
+const editorPanel = el<HTMLElement>('panel-editor');
+
+wireTabs(
+  [
+    { tab: el<HTMLButtonElement>('mode-slack'), panel: el<HTMLElement>('panel-slack') },
+    { tab: el<HTMLButtonElement>('mode-editor'), panel: editorPanel },
+  ],
+  // The editor needs a much wider page than the form does; see .shell.is-wide.
+  (chosen) => shell?.classList.toggle('is-wide', chosen.panel === editorPanel)
+);
 
 // --- Workspace picker ------------------------------------------------------
 // Every token comes from this browser tab. The server has no fallback of its own — the

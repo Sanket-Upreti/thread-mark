@@ -15,6 +15,12 @@
   --on-violet: #ffffff;
   --clay: #b4462f;
 
+  /* A quiet recessed surface for read-only panes, and a neutral tint for code.
+     Code is frequent enough in this content that tinting it violet turns prose
+     into a field of purple blocks -- the accent stays on the rail and the arrow. */
+  --sunken: #f4f3f7;
+  --code-bg: rgb(0 0 0 / 0.055);
+
   --sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --mono: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace;
 
@@ -41,7 +47,37 @@
     --violet-wash: #221c39;
     --on-violet: #131118;
     --clay: #f0846b;
+    --sunken: #17151e;
+    --code-bg: rgb(255 255 255 / 0.075);
   }
+}
+
+/* Thin scrollbars — the editor panes scroll constantly, and the default chunky
+   bar reads as a seam through the middle of the layout. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--edge) transparent;
+}
+
+::-webkit-scrollbar {
+  width: 11px;
+  height: 11px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--edge);
+  border: 3px solid transparent;
+  background-clip: content-box;
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--haze);
+  background-clip: content-box;
 }
 
 *,
@@ -127,10 +163,24 @@ a {
   max-width: 780px;
   margin: 0 auto;
   padding: var(--s7) var(--s5) var(--s7);
+  transition: max-width 180ms ease;
 }
 
 .shell-narrow {
   max-width: 640px;
+}
+
+/* 780px is right for a single column of prose and inputs, and far too narrow for two
+   editor panes side by side -- it wraps markdown every few words. The editor mode gets
+   its own width, set from the active tab. */
+.shell.is-wide {
+  max-width: 1360px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shell {
+    transition: none;
+  }
 }
 
 .masthead + .tagline {
@@ -485,13 +535,36 @@ select.control {
   margin: 0 0 var(--s3);
 }
 
+/* A real scale, kept tight. All headings at one size made a long document read as an
+   undifferentiated wall. */
 .md h1,
 .md h2,
-.md h3 {
-  font-size: 1rem;
+.md h3,
+.md h4 {
   font-weight: 700;
   letter-spacing: -0.015em;
-  margin: var(--s4) 0 var(--s2);
+  line-height: 1.3;
+  margin: var(--s5) 0 var(--s2);
+}
+
+.md h1 {
+  font-size: 1.2rem;
+}
+
+.md h2 {
+  font-size: 1.05rem;
+}
+
+.md h3,
+.md h4 {
+  font-size: 0.95rem;
+}
+
+/* A hairline under the top two levels gives a long document visible structure. */
+.md h1,
+.md h2 {
+  padding-bottom: var(--s2);
+  border-bottom: 1px solid var(--edge);
 }
 
 .md ul,
@@ -519,10 +592,12 @@ select.control {
 
 .md code {
   font-family: var(--mono);
-  font-size: 0.85em;
-  padding: 1px 5px;
+  font-size: 0.86em;
+  padding: 0.1em 0.36em;
   border-radius: 4px;
-  background: var(--violet-wash);
+  background: var(--code-bg);
+  /* Long identifiers and URLs must not push the pane into a horizontal scroll. */
+  overflow-wrap: anywhere;
 }
 
 .md pre {
@@ -530,12 +605,15 @@ select.control {
   padding: var(--s3);
   border-radius: 8px;
   overflow-x: auto;
-  background: var(--violet-wash);
+  background: var(--code-bg);
+  border: 1px solid var(--edge);
+  line-height: 1.6;
 }
 
 .md pre code {
   padding: 0;
   background: none;
+  overflow-wrap: normal;
 }
 
 .md a {
@@ -564,14 +642,16 @@ select.control {
   gap: var(--s4);
 }
 
-/* The swap button sits on the seam between the two panes and points the way content
-   flows. Nudged down so it centres against the panes, not the labels above them. */
+/* The swap button sits at the top of the seam between the panes, level with their
+   labels. Centring it vertically buried it hundreds of pixels down once the panes grew,
+   so it stays at the top where it is always in reach. */
 .swap {
-  align-self: center;
+  align-self: start;
   flex: none;
   width: 34px;
   height: 34px;
-  margin-top: var(--s5);
+  /* Optically centres the 34px button against the 26px label row beside it. */
+  margin-top: -4px;
   padding: 0;
   font-family: var(--mono);
   font-size: 1rem;
@@ -588,15 +668,8 @@ select.control {
   background: var(--violet-wash);
 }
 
-/* The pane that is currently derived rather than edited. */
-.is-derived {
-  opacity: 0.92;
-}
-
-textarea.is-derived {
-  background: var(--violet-wash);
-  cursor: default;
-}
+/* The derived pane is marked by its rail and surface, not by dimming — dimming a pane
+   you still need to read is the wrong trade. */
 
 .md[contenteditable="true"]:focus {
   outline: none;
@@ -611,17 +684,37 @@ textarea.is-derived {
   min-width: 0;
 }
 
-.editor {
-  flex: 1;
-  min-height: 56vh;
-  resize: none;
-  line-height: 1.6;
-}
-
+/* A fixed height for both panes: only the panes scroll, so the page doesn't scroll
+   underneath them as well. */
+.editor,
 .editor-preview {
   flex: 1;
-  min-height: 56vh;
+  height: clamp(340px, 64vh, 780px);
   max-height: none;
+}
+
+.editor {
+  resize: none;
+  line-height: 1.7;
+  overflow: auto;
+}
+
+/* The panes are a matched pair, so the preview drops the card's standing violet rail
+   and both take a plain edge. The rail then means something: it marks whichever side
+   is currently derived rather than edited, and moves when you swap direction. */
+.editor-preview {
+  border-left: 1px solid var(--edge);
+  overflow: auto;
+}
+
+.editor.is-derived,
+.editor-preview.is-derived {
+  border-left: var(--rail) solid var(--violet);
+}
+
+textarea.editor.is-derived {
+  background: var(--sunken);
+  cursor: default;
 }
 
 @media (max-width: 680px) {
@@ -635,9 +728,11 @@ textarea.is-derived {
     transform: rotate(90deg);
   }
 
+  /* Must set `height`, not `min-height` — the base rule sets height, so a min-height
+     here would never take effect. */
   .editor,
   .editor-preview {
-    min-height: 32vh;
+    height: clamp(240px, 38vh, 420px);
   }
 }
 
@@ -778,13 +873,16 @@ textarea.is-derived {
   margin-top: var(--s4);
 }
 
+/* The panes take a viewport-relative height on the web page; a 400px popup needs its
+   own fixed sizes, including `height` — overriding only max-height would leave the
+   base clamp in force and stretch the popup past the screen. */
 .popup .editor {
-  min-height: 96px;
-  max-height: 140px;
+  height: 130px;
   flex: none;
 }
 
 .popup .editor-preview {
+  height: auto;
   min-height: 60px;
   max-height: 200px;
   overflow: auto;
