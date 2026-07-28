@@ -26,13 +26,21 @@ server.registerTool(
           'A Slack message or thread permalink, e.g. ' +
             'https://yourteam.slack.com/archives/C0123ABCD/p1234567890123456'
         ),
+      header: z
+        .enum(['none', 'brief', 'full'])
+        .optional()
+        .describe(
+          'How much orientation to put above the transcript: "full" (default) adds message ' +
+            'and participant counts, duration, link/file counts and the most-reacted message; ' +
+            '"brief" adds only the counts line; "none" returns just the messages.'
+        ),
     },
   },
-  async ({ permalink }) => {
+  async ({ permalink, header }) => {
     try {
       const client = createSlackClient(envToken());
       const thread = await fetchThread(client, permalink);
-      const markdown = formatThread(thread);
+      const markdown = formatThread(thread, { header, permalink });
       return { content: [{ type: 'text', text: markdown }] };
     } catch (err) {
       return {

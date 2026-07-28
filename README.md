@@ -28,6 +28,11 @@ so an alert thread doesn't come out as five lines of "New alert".
 **Readable timing.** The first message gets an absolute timestamp; every reply after it is a
 delta — `+3m`, `+1h 5m` — so you can see how a conversation actually unfolded.
 
+**A header that orients you before you read.** Message and participant counts, how long the
+thread ran, link and file counts, and the most-reacted message — computed from data already
+fetched, so it costs no extra API call, works on every Slack plan, and is identical for identical
+input. Choose `full`, `brief`, or `none`.
+
 **Reactions and files kept.** `[👍 ×3]` and `📎 [trace.png](…)` stay inline instead of vanishing.
 
 **A two-way markdown editor.** Type markdown and watch it render, or click the arrow and paste
@@ -107,8 +112,16 @@ to; a user token sees whatever you can already see in Slack.
 ### CLI
 
 ```bash
-bun run cli <permalink> [--write <path>] [--copy]
+bun run cli <permalink> [--header <preset>] [--write <path>] [--copy]
 ```
+
+`--header` picks how much orientation goes above the transcript:
+
+| Preset | Output |
+|---|---|
+| `full` (default) | counts, participants, links/files/most-reacted, source permalink |
+| `brief` | the counts line only |
+| `none` | just the messages |
 
 Arguments pass straight through — Bun needs no `--` separator. Run with no permalink and it
 prints usage and exits 1.
@@ -140,7 +153,7 @@ bun run dev     # or `bun run web` — the same thing
 
 Serves `http://127.0.0.1:4321`, localhost only. Two modes:
 
-**From Slack** — pick a workspace, paste a permalink, Convert. The result has raw/preview tabs,
+**From Slack** — pick a workspace and a header preset, paste a permalink, Convert. The result has raw/preview tabs,
 Copy, and Download .md.
 
 **Editor** — nothing to do with Slack, and it converts both ways. A round button on the seam
@@ -193,7 +206,8 @@ directory with no `.env` above it:
 "env": { "SLACK_USER_TOKEN": "xoxp-..." }
 ```
 
-It exposes one tool, `get_slack_thread(permalink)`, returning the same markdown the CLI produces.
+It exposes one tool, `get_slack_thread(permalink, header?)`, returning the same markdown the
+CLI produces. `header` is optional and takes the same three presets.
 
 ### Chrome extension
 
@@ -352,6 +366,9 @@ src/
   convert/              pure: no I/O, no DOM, no HTTP
     mrkdwn.ts           Slack mrkdwn -> markdown (the core converter)
     extractText.ts      pulls text out of blocks/attachments for bot messages
+    prepare.ts          sort + noise filter + convert, shared by the next two
+    digest.ts           the header: counts, participants, links, reactions
+    time.ts             absolute and relative timestamp formatting
     format.ts           assembles the final document
   client/               browser TypeScript -> ESM in dist/client
     markdown.ts         markdown -> HTML preview (shared web + extension)
@@ -434,15 +451,16 @@ bun test            # Bun's own runner: same 86 tests, roughly 3x faster
 > same files directly. Both pass all 86 tests here, so use whichever you prefer — but CI should
 > pin one, and `bun run test` is what the scripts table documents.
 
-86 tests, no DOM library required:
+107 tests, no DOM library required:
 
 | Suite | Covers |
 |---|---|
-| `mrkdwn.test.ts` (16) | styling, mentions, links, emoji, entities, code-block protection |
 | `htmlToMarkdown.test.ts` (20) | rich text → markdown: lists, quotes, escaping, unwrapping |
+| `digest.test.ts` (20) | header counts, participant ranking, link/file counting, tie-breaks |
 | `markdown.test.ts` (19) | markdown → HTML: escaping, grouping, unsafe URLs, images |
+| `mrkdwn.test.ts` (16) | styling, mentions, links, emoji, entities, code-block protection |
 | `loadEnv.test.ts` (12) | `.env` parsing and the upward file search |
-| `format.test.ts` (9) | message grouping, system-noise filtering |
+| `format.test.ts` (10) | message grouping, noise filtering, header placement |
 | `extractText.test.ts` (6) | bot blocks/attachments, text-vs-rich_text duplication |
 | `permalink.test.ts` (4) | permalink parsing |
 
@@ -460,6 +478,10 @@ imports and reports what it copied.
 
 **Adding a Slack API call** goes in `src/slack/`. Keep `src/convert/` free of I/O so it stays
 testable with fixtures.
+
+**Anything that describes the thread as a whole** reads from `prepare.ts`, never from the raw
+message list. The transcript and the header must agree on which messages count — a header
+reporting messages the transcript filtered out is worse than no header.
 
 **Changing the port** means three places: the default in `src/web/server.ts`, `SERVER_URL` in
 `src/client/popup.ts`, and `host_permissions` in `src/extension/manifest.json`. The last two must

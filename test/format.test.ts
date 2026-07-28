@@ -12,7 +12,25 @@ function thread(messages: any[]): RawThread {
 }
 
 describe('formatThread', () => {
-  it('has no channel/participants/metadata header -- just the messages', () => {
+  // Replaces an earlier guarantee of "no header at all". The header is now opt-out rather
+  // than absent, so the guarantee moves to `header: 'none'` -- which must still produce
+  // exactly the bare transcript that guarantee described.
+  it('emits only the messages when the header is turned off', () => {
+    const md = formatThread(
+      thread([
+        { ts: '1753526400.000000', user: 'U111', text: 'hello' },
+        { ts: '1753526460.000000', user: 'U222', text: 'hi back' },
+      ]),
+      { header: 'none' }
+    );
+
+    expect(md).not.toContain('Participants:');
+    expect(md).not.toContain('message · ');
+    expect(md).not.toContain('---');
+    expect(md.startsWith('**Alice**')).toBe(true);
+  });
+
+  it('puts the header above the transcript by default', () => {
     const md = formatThread(
       thread([
         { ts: '1753526400.000000', user: 'U111', text: 'hello' },
@@ -20,11 +38,12 @@ describe('formatThread', () => {
       ])
     );
 
-    expect(md).not.toContain('# Thread');
-    expect(md).not.toContain('**Participants:**');
-    expect(md).not.toContain('**Messages:**');
+    expect(md.startsWith('2 messages · 2 people')).toBe(true);
+    expect(md).toContain('Participants: Alice (1), Bob (1)');
+    // Header and transcript separated by one blank line, transcript otherwise unchanged.
+    expect(md).toContain('\n\n**Alice** (');
+    // A horizontal rule here would render as a divider and sever the two visually.
     expect(md).not.toContain('---');
-    expect(md.startsWith('**Alice**')).toBe(true);
   });
 
   it('shows an absolute timestamp for the first message', () => {

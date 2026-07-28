@@ -54,6 +54,20 @@ workspaceSelect.addEventListener('change', () => setActive(workspaceSelect.value
 
 renderWorkspaceOptions();
 
+// --- Header preset ---------------------------------------------------------
+// Remembered per tab, alongside the tokens. It is a display choice, not a secret, but
+// sessionStorage keeps the "nothing is written to disk" promise whole.
+
+const HEADER_KEY = 'thread-mark.header';
+const headerSelect = el<HTMLSelectElement>('header');
+
+const savedHeader = sessionStorage.getItem(HEADER_KEY);
+if (savedHeader) headerSelect.value = savedHeader;
+
+headerSelect.addEventListener('change', () => {
+  sessionStorage.setItem(HEADER_KEY, headerSelect.value);
+});
+
 // --- Convert ---------------------------------------------------------------
 
 function setStatus(text: string, isError = false): void {
@@ -91,7 +105,7 @@ form.addEventListener('submit', async (event) => {
     const response = await fetch('/api/thread', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ permalink: link, token }),
+      body: JSON.stringify({ permalink: link, token, header: headerSelect.value }),
     });
     const data = (await response.json()) as { markdown?: string; error?: string };
     if (!response.ok) throw new Error(data.error ?? 'The request failed.');

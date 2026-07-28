@@ -11,6 +11,7 @@ import path from 'node:path';
 import { createSlackClient } from '../slack/client.js';
 import { fetchThread } from '../slack/fetchThread.js';
 import { formatThread } from '../convert/format.js';
+import { isHeaderPreset } from '../convert/digest.js';
 
 // Resolves to the project root from both src/web (tsx) and dist/web (built).
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
@@ -102,10 +103,14 @@ async function handleThread(req: IncomingMessage, res: ServerResponse): Promise<
     return;
   }
 
+  // An unrecognised preset falls back to the default rather than failing the request --
+  // the header is a presentation choice, not something worth losing a fetch over.
+  const header = isHeaderPreset(body.header) ? body.header : undefined;
+
   try {
     const client = createSlackClient(token);
     const thread = await fetchThread(client, permalink);
-    sendJson(res, 200, { markdown: formatThread(thread) });
+    sendJson(res, 200, { markdown: formatThread(thread, { header, permalink }) });
   } catch (err: unknown) {
     sendJson(res, 502, { error: (err as Error).message });
   }
