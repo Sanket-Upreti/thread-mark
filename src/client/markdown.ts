@@ -14,14 +14,24 @@ export function escapeHtml(value: string): string {
 }
 
 // Allow-list, so a link like `javascript:...` renders as text instead of running.
+//
+// `\/(?!\/)` matches a single leading slash but not two: `//evil.test/x` is a
+// protocol-relative URL to an arbitrary host, not the same-origin path this permits.
 function isSafeUrl(url: string): boolean {
-  return /^(https?:\/\/|mailto:|\/|#)/i.test(url.trim());
+  return /^(https?:\/\/|mailto:|\/(?!\/)|#)/i.test(url.trim());
 }
 
-// Images additionally allow data: URIs, which is what pasting an image produces. Only
-// image/* -- a data: URI of any other type can carry script.
+// Images additionally allow data: URIs, which is what pasting an image produces --
+// but raster types only.
+//
+// `image/svg+xml` is deliberately excluded. An SVG carried in a data: URI can contain
+// script, and it is inert in an <img> only because browsers disable scripting there. That
+// is their guarantee to withdraw, not ours to depend on, and nothing pastes as an SVG
+// data URI anyway.
+const SAFE_IMAGE_DATA = /^data:image\/(png|jpe?g|gif|webp|avif|bmp|x-icon)[;,]/i;
+
 function isSafeImageUrl(url: string): boolean {
-  return isSafeUrl(url) || /^data:image\/[a-z+.-]+;/i.test(url.trim());
+  return isSafeUrl(url) || SAFE_IMAGE_DATA.test(url.trim());
 }
 
 // Runs on already-escaped text. Code spans are pulled out first so styling markers

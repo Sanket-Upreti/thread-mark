@@ -453,10 +453,11 @@ bun test            # Bun's own runner: same 86 tests, roughly 3x faster
 > same files directly. Both pass all 86 tests here, so use whichever you prefer — but CI should
 > pin one, and `bun run test` is what the scripts table documents.
 
-107 tests, no DOM library required:
+135 tests, no DOM library required:
 
 | Suite | Covers |
 |---|---|
+| `xss.test.ts` (28) | hostile thread content: script injection, scheme smuggling, attribute breakout |
 | `htmlToMarkdown.test.ts` (20) | rich text → markdown: lists, quotes, escaping, unwrapping |
 | `digest.test.ts` (20) | header counts, participant ranking, link/file counting, tie-breaks |
 | `markdown.test.ts` (19) | markdown → HTML: escaping, grouping, unsafe URLs, images |
