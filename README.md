@@ -211,8 +211,8 @@ CLI produces. `header` is optional and takes the same three presets.
 
 ### Chrome extension
 
-Convert-and-copy from the browser toolbar, plus the same two-way markdown editor. It injects
-nothing into Slack's pages.
+Convert-and-copy from the browser toolbar, plus the same two-way markdown editor and the same
+header presets as the web UI. It injects nothing into Slack's pages.
 
 1. `bun run build` — assembles `dist/extension/`
 2. `bun run dev` and leave it running; the extension calls it
@@ -232,6 +232,8 @@ On WSL, paste the UNC path into the file picker's address bar rather than browsi
 
 The popup holds one token, pasted in directly — an extension can't read your `.env`, and a 400px
 popup is a poor home for a workspace switcher. Use the web UI if you juggle several workspaces.
+The token and the header preset are both kept in `chrome.storage.session`, so the popup opens the
+way you left it until the browser restarts.
 
 After every `bun run build`, hit **reload** on the extension card in `chrome://extensions` —
 Chrome caches the old files otherwise.

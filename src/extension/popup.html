@@ -78,6 +78,15 @@
         <p class="hint">In Slack: More actions &rarr; Copy link.</p>
       </div>
 
+      <div class="field">
+        <label for="header">Header</label>
+        <select id="header" class="control">
+          <option value="full">Full — counts, participants, links</option>
+          <option value="brief">Brief — counts only</option>
+          <option value="none">None — just the messages</option>
+        </select>
+      </div>
+
       <button id="convert" class="btn btn-block" type="button">Convert &amp; copy</button>
       <p id="status" class="status" role="status" aria-live="polite"></p>
 

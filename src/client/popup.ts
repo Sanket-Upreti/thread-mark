@@ -10,6 +10,7 @@ const SERVER_URL = 'http://127.0.0.1:4321';
 const tokenInput = el<HTMLInputElement>('token');
 const tokenReveal = el<HTMLButtonElement>('token-reveal');
 const permalink = el<HTMLInputElement>('permalink');
+const headerSelect = el<HTMLSelectElement>('header');
 const convertBtn = el<HTMLButtonElement>('convert');
 const status = el<HTMLParagraphElement>('status');
 const result = el<HTMLElement>('result');
@@ -33,12 +34,18 @@ wireTabs([
 // --- Token -----------------------------------------------------------------
 // chrome.storage.session is memory-only: cleared on browser restart, never on disk.
 
-void chrome.storage.session.get('token').then(({ token }) => {
+void chrome.storage.session.get(['token', 'header']).then(({ token, header }) => {
   if (typeof token === 'string') tokenInput.value = token;
+  // Remembered next to the token, so the popup opens the way it was left.
+  if (typeof header === 'string') headerSelect.value = header;
 });
 
 tokenInput.addEventListener('input', () => {
   void chrome.storage.session.set({ token: tokenInput.value });
+});
+
+headerSelect.addEventListener('change', () => {
+  void chrome.storage.session.set({ header: headerSelect.value });
 });
 
 tokenReveal.addEventListener('click', () => {
@@ -77,7 +84,7 @@ convertBtn.addEventListener('click', async () => {
     const response = await fetch(`${SERVER_URL}/api/thread`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ permalink: link, token }),
+      body: JSON.stringify({ permalink: link, token, header: headerSelect.value }),
     });
     const data = (await response.json()) as { markdown?: string; error?: string };
     if (!response.ok) throw new Error(data.error ?? 'The request failed.');
